@@ -14,8 +14,12 @@ Automations are grouped by folder. Each folder represents a **theme or domain**.
 /
 ├── email-automation/
 │   ├── *.json
-│   └── *.json
-└── (more folders coming)
+│   └── README.md
+└── crypto-ai-news-automation/
+    ├── *.json
+    └── README.md
+
+    (more folders coming)
 ```
 
 * Each `.json` file = one n8n workflow export
