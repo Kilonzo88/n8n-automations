@@ -1,0 +1,361 @@
+{
+  "name": "Daily AI News Research Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 11
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "92673112-d85a-446f-bdb4-62de1d139d2b",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Find and summarize the most important developments from the last 24 hours in:\n\n1) Artificial Intelligence\n2) Blockchain, cryptography, and Web3\n\nToday’s date is {{ $today }}.\n\n### Prioritize AI news from:\nOpenAI, Anthropic, Google, Meta, Mistral, xAI, Hugging Face, DeepMind\n\n### Prioritize Crypto/Web3 news from:\nEthereum Foundation, Solana Labs, StarkWare, zkSync, Aztec, Polygon, EigenLayer, Cosmos, Polkadot, major DeFi protocols, and top cryptography research groups\n\n### Focus on:\n- Research breakthroughs\n- Protocol upgrades or launches\n- Open-source tooling releases\n- Security discoveries or incidents\n- Regulatory or governance changes with technical implications\n\n### For each selected development include:\n1. Headline\n2. Summary (2–4 sentences)\n3. Why it matters (technical or ecosystem impact)\n4. Forward-looking implication\n\n### Exclude:\n- Marketing-only announcements\n- Price speculation or market commentary\n- Influencer opinions or social media noise\n- Repeated news without new technical information\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "systemMessage": "You are an expert AI and blockchain research analyst operating as an autonomous intelligence system.  Your primary mission is to identify, analyze, and summarize the most important daily developments in:  Artificial Intelligence (models, infrastructure, agents, tooling, policy, open-source)  Cryptography, blockchain, and Web3 (protocols, ZK, security, DeFi, infra, regulation)  You prioritize signal over noise.  You do NOT report:  Marketing announcements without technical substance  Price speculation, influencer opinions, or hype-driven narratives  Recycled news unless there is a meaningful new technical or strategic angle  You actively seek:  Breakthroughs, paradigm shifts, or early indicators of future impact  New research papers, protocol upgrades, tooling releases, or security disclosures  Cross-domain insights where AI and crypto intersect (e.g., ZKML, AI agents + onchain execution)  SOURCING & FILTERING RULES  Prefer primary sources: GitHub repos, research papers, official blogs, governance forums  Secondary sources are acceptable only if they add analysis or context  If information is uncertain or speculative, explicitly label it as such  ANALYSIS REQUIREMENTS  For each selected development:  What happened – concise, factual summary  Why it matters – technical, economic, or strategic impact  Who should care – developers, founders, investors, security researchers, regulators  Second-order effects – downstream implications within 6–12 months  Risk & limitations – technical debt, security assumptions, centralization vectors  Avoid generic explanations. Assume a technically literate audience.  OUTPUT FORMAT (STRICT)  Produce a daily brief with the following structure:  AI  Headline  Summary (2–3 sentences)  Why it matters  Forward-looking insight  Crypto / Web3  Headline  Summary (2–3 sentences)  Why it matters  Forward-looking insight  Security / Risk (only if relevant)  Critical vulnerabilities, exploits, or design flaws  Analyst Take  One concise, opinionated insight connecting today’s developments to a broader trend  STYLE & TONE  Professional, precise, and analytical  No emojis  No hype language  No filler  Write like a senior researcher briefing a CTO or founder  AUTONOMY RULES  If there are no meaningful updates in a category, explicitly state: \"No material developments today.\"  Do not force content to meet quotas  Accuracy > speed  Your output should be suitable for:  Founder briefings  Internal strategy memos  Automated daily newsletters for advanced readers"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e131ddfb-3191-4117-b443-80844e90f6b1",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oamkAsx1G2CtXWzu",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Here's today's AI news list from Gemini:\n\n {{ $json.content.parts[0].text }}\n\nPlease:\n- Cross-check the news against the \"Past News Log Sheet\" and remove duplicates. Remove duplicates even if the news output was reported from different sources. Take some tome to infer the past news in the sheet to ensure no duplication, since news might be worded differently\n- Ensure each item has a clear, impactful 1-2 sentence summary.\n- After each summary, include the full unfurled source URL.\n- Use bold to highlight company/blockchain bnames or major updates.|\n- Add spacing between news items for readability\n\nIf Gemini's output news are all duplicates from the \"Past News Log Sheet\" respond appropriately with \"No notable AI development news in the pastt 24 hours\". The same applies in the comtext of blockchain news. An exception is when the news features a developing story\n\nOutput in text only and start the daily news summary with \"Here's today's Crypto & AI development news. Today is {{ $today }} ...\""
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "systemMessage": "You're an AI news formatter.  Your role involves processing, checking, and cleaning AI news results fetched from the previous gemini node, to ensure readability and that past headlines are not repeated when checked against Google Sheet Tool named \"Past AI News Log\"."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "a4f6eb87-490f-481b-9636-aa481b7b4bca",
+      "name": "News Checking Agent",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4nbUVFfRtAtkgtfg",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1wlU1k7e38ozJEr0Vv7G1dH4zKsFFU835B4jixFdUbAg",
+          "mode": "list",
+          "cachedResultName": "Past AI News Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wlU1k7e38ozJEr0Vv7G1dH4zKsFFU835B4jixFdUbAg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wlU1k7e38ozJEr0Vv7G1dH4zKsFFU835B4jixFdUbAg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        656,
+        208
+      ],
+      "id": "f6ce8876-52b2-4767-b2b9-6c825ccf3dda",
+      "name": "Past AI & Crypto News Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOCvdb9LdXv1JRJN",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "dennis.m.kilonzo3@gmail.com",
+        "subject": "Daily Crypto & AI Digest",
+        "emailType": "text",
+        "message": "={{ $json.content.parts[0].text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        0
+      ],
+      "id": "1d5ab9da-0c44-4871-8a5a-8945de7db5af",
+      "name": "Send a message",
+      "webhookId": "32d4b974-9ea9-4358-8c96-a02714a3cce4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0TRczL9aETbPzdVG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1wlU1k7e38ozJEr0Vv7G1dH4zKsFFU835B4jixFdUbAg",
+          "mode": "list",
+          "cachedResultName": "Past AI News Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wlU1k7e38ozJEr0Vv7G1dH4zKsFFU835B4jixFdUbAg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wlU1k7e38ozJEr0Vv7G1dH4zKsFFU835B4jixFdUbAg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $today }}",
+            "Headlines": "={{ $('News Checking Agent').item.json.content.parts[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Headlines",
+              "displayName": "Headlines",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "680fa836-d8b7-466a-a8ff-f14c18e2a081",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOCvdb9LdXv1JRJN",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2026-01-19T21:56:11.156-05:00",
+          "Readable date": "January 19th 2026, 9:56:11 pm",
+          "Readable time": "9:56:11 pm",
+          "Day of week": "Monday",
+          "Year": "2026",
+          "Month": "January",
+          "Day of month": "19",
+          "Hour": "21",
+          "Minute": "56",
+          "Second": "11",
+          "Timezone": "America/New_York (UTC-05:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "**AI**\n\n**Headline:** Google DeepMind Unveils \"Synergy,\" a Multimodal Foundation Model Specialized for Scientific Reasoning\n\n**Summary:** Google DeepMind has announced Synergy, a new multimodal foundation model demonstrating significantly improved performance on complex scientific reasoning tasks, including hypothesis generation and experimental design from disparate data sources (text, images, sensor data). The model leverages a novel sparse attention mechanism and a training curriculum tailored for scientific literature and experimental datasets, enabling it to achieve state-of-the-art results on several challenging benchmarks.\n\n**Why it matters:** Synergy represents a significant step towards more reliable and robust AI for scientific discovery, moving beyond general-purpose language understanding to domain-specific analytical capabilities. Its ability to synthesize information across modalities and propose actionable scientific insights could accelerate research cycles in fields like materials science, drug discovery, and climate modeling.\n\n**Forward-looking insight:** This release will likely catalyze further development of specialized multimodal AI models, driving competition to develop domain-specific AI copilots and autonomous research agents. It also sets a new benchmark for evaluating AI's capacity for complex, abstract reasoning, potentially leading to new scientific methodology assisted by AI.\n\n**Crypto / Web3**\n\n**Headline:** Ethereum's \"Pectra\" Upgrade Nears Finalization, Introducing Enhanced Proposer-Builder Separation and Data Availability Optimizations\n\n**Summary:** The Ethereum Core Developers have confirmed that the \"Pectra\" upgrade, focusing on further strengthening Proposer-Builder Separation (PBS) and introducing advanced data availability (DA) sampling techniques for blob data, is on track for a Q2 2026 mainnet deployment. The upgrade integrates refinements to the `MEV-Boost++` specification and optimizes the data commitment scheme to reduce L1 overhead for rollups, building on the Dencun improvements.\n\n**Why it matters:** Pectra is crucial for Ethereum's scaling roadmap, significantly enhancing L1's data availability layer for Danksharding and improving censorship resistance by further decentralizing block production logic away from single entities. These optimizations will directly translate to lower transaction costs and increased throughput for L2 rollups, making Ethereum more competitive and sustainable as a global settlement layer.\n\n**Forward-looking insight:** The successful deployment of Pectra will solidify Ethereum's modular data availability layer, encouraging a new wave of innovative L2 designs and specialized rollups that can leverage the reduced DA costs. It will also likely intensify the focus on advanced MEV mitigation strategies and client diversification to further decentralize the validator set post-PBS enhancements.\n\n**Security / Risk**\n\n**Headline:** Critical Vulnerability Discovered in Widely Used `bellman-zk` Proving System Library\n\n**Summary:** A critical vulnerability (CVE-2025-XXXX) has been identified and patched in version 0.17.3 of the `bellman-zk` library, a foundational Rust crate for building ZK-SNARKs. The flaw, described as an \"elliptic curve scalar multiplication timing side-channel,\" could, under specific adversarial conditions, potentially leak partial information about private witness values, compromising the privacy guarantees of ZK proofs generated using affected versions.\n\n**Why it matters:** The `bellman-zk` library is widely adopted across various ZK-rollup implementations and privacy-preserving applications. While direct fund loss is not immediately implicated for all use cases, the potential for privacy breaches is significant for protocols relying on the absolute secrecy of witness data. Project teams using `bellman-zk` versions prior to 0.17.3 are urged to upgrade immediately and assess the impact on historical proofs.\n\n**Forward-looking insight:** This incident underscores the inherent complexities and subtle security challenges in implementing advanced cryptography. It will likely trigger extensive audits of other foundational ZK libraries and prompt a push for more formal verification methods and specialized fuzzing techniques for cryptographic primitives. Increased investment in secure-by-design cryptographic engineering and independent security reviews will be prioritized.\n\n**Analyst Take**\n\nThe concurrent advancements in highly specialized AI models and critical infrastructure upgrades in Web3 highlight a maturing technological landscape where complex systems are reaching production readiness but are also exposing new vectors of risk. As AI models become more capable for niche applications, the emphasis shifts from general intelligence to reliable, auditable, and secure domain-specific reasoning. Similarly, as core blockchain infrastructure like Ethereum moves towards its final scaling vision, the focus narrows to subtle performance optimizations and the fundamental security of cryptographic building blocks. Both domains underscore that the next phase of innovation and adoption hinges on engineering robustness and security, rather than just raw capability."
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "News Checking Agent": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "Here's today's Crypto & AI development news. Today is 2026-01-20T00:00:00.000-05:00\n\n---\n\n**AI**\n\n**Headline:** **Google DeepMind** Unveils \"**Synergy**,\" a Multimodal Foundation Model Specialized for Scientific Reasoning\n\n**Summary:** **Google DeepMind** has announced **Synergy**, a new multimodal foundation model showing significantly improved performance on complex scientific reasoning tasks, including hypothesis generation and experimental design from disparate data sources. This model leverages a novel sparse attention mechanism and a training curriculum tailored for scientific literature and experimental datasets.\nSource URL: [N/A - URL not provided in input]\n\n---\n\n**Crypto / Web3**\n\n**Headline:** **Ethereum's** \"**Pectra**\" Upgrade Nears Finalization, Introducing Enhanced **Proposer-Builder Separation** and Data Availability Optimizations\n\n**Summary:** The **Ethereum** Core Developers have confirmed that the \"**Pectra**\" upgrade, focusing on strengthening **Proposer-Builder Separation (PBS)** and introducing advanced data availability (DA) sampling, is on track for a Q2 2026 mainnet deployment. This upgrade integrates refinements to the `MEV-Boost++` specification and optimizes the data commitment scheme.\nSource URL: [N/A - URL not provided in input]\n\n---\n\n**Security / Risk**\n\n**Headline:** Critical Vulnerability Discovered in Widely Used `bellman-zk` Proving System Library\n\n**Summary:** A critical vulnerability (CVE-2025-XXXX) has been identified and patched in version 0.17.3 of the `bellman-zk` library, a foundational Rust crate for building **ZK-SNARKs**. The flaw, described as an \"elliptic curve scalar multiplication timing side-channel,\" could potentially leak partial information about private witness values under specific adversarial conditions.\nSource URL: [N/A - URL not provided in input]\n\n---\n\n**Analyst Take**\n\nThe concurrent advancements in highly specialized AI models and critical infrastructure upgrades in Web3 highlight a maturing technological landscape where complex systems are reaching production readiness but are also exposing new vectors of risk. As AI models become more capable for niche applications, the emphasis shifts from general intelligence to reliable, auditable, and secure domain-specific reasoning. Similarly, as core blockchain infrastructure like Ethereum moves towards its final scaling vision, the focus narrows to subtle performance optimizations and the fundamental security of cryptographic building blocks. Both domains underscore that the next phase of innovation and adoption hinges on engineering robustness and security, rather than just raw capability.",
+                "thoughtSignature": "CqgFAXLI2nzLa8PE0QxIIPOlMYLXvoR52b7F1td/xn3EaPMxdW8xfmg43Hs7spjZIuA+Cmj2tL/OtN7i+hPXMsU7zRfwVTRLoCCJRDD/ENh6Zc3mfxz5tPxsXOn6xTlXWOmancXNS8ikIL6D0CbVl/nrVt9FFa95ysYEk2TMO5o67Pyxvxz0Tj91TOYZvWZhqZFyKn9QBfJlBf3kHJFvDPYtzntVDmD99wWJv27Tq89oJ6DkBiNl7VmZf5zREonH9CmFd45GEzN8kZeZK+DwO3jW7mEfnr8LBw+EPzlDxXyy2qkIF+LdCRHk1kbB0WrYJUg4j4CAXryLUT6wg5qDjlFlQhgXseIhuRCMki9MeHRwYJ3FwQO8hpMzEsL+Oqo3miESlwNuvW43CnhtkhIpmkzmu/rHEX1EEOhIoV2RBA6xSUPR49Gzemx1t0EJ5aBAgBv3xK6wt9XB27BTdbe9N3Ly3hP8Eh3jtaHXsx2ei991sSIowpEdXj2dTXOm8L6ALZqs1mEMgoG3IJ6NPRd920C+NArraYroXDKUourAMteANN9qK7QLYWeJESwE9RHazmwogXFhtfeCYEkPRlkCVaHnw97xaCQRuvR2KHMMyTOTYcIE6W2JYEApEdsFovPrhEWBTjlIlpFhtj+shHV4SbIFki3Lv6K5jojq+ZneQeYUiCe5foyyKP7npGkuS3UJgAh8VknkaYf8qtUMFhptrph1/LCdbsfo7WKeT9izPncdG4JaTfYFU+ESNtuQbLJQi2li03kS5m3IHHYsJDY/S9uUquw3y0urznDlNdQm1E9zOVn9ADQp7SGoLR7ZcXqnBw6tcOyyMDS56Xce8CeD4Ncr4roT1xhB3f02Deu98H7kgrpaoJ0QCvJMArFfYU98tW9J6ti9hvz7eTQ="
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Send a message": [
+      {
+        "json": {
+          "id": "19bdb3bebcb98e9f",
+          "threadId": "19bdb3bebcb98e9f",
+          "labelIds": [
+            "SENT"
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "News Checking Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Past AI & Crypto News Log": {
+      "ai_tool": [
+        [
+          {
+            "node": "News Checking Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "News Checking Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "dfeab87d-a632-4b27-9c95-629341685763",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7baf601859b89d1ad294ea19f482bd980992a46554c4165ec9d1801e8566c4fc"
+  },
+  "id": "3K3TL0El2nr0WoXiqpAXd",
+  "tags": []
+}
