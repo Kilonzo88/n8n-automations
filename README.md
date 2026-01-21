@@ -26,19 +26,7 @@ Automations are grouped by folder. Each folder represents a **theme or domain**.
 * No nested folders (for now)
 * Folder count will grow over time
 
----
 
-## 🗂 Automations
-
-### 📧 email-automation/
-
-| Workflow file | Description                                                 |
-| ------------- | ----------------------------------------------------------- |
-| `*.json`      | Email-related automations (parsing, sending, routing, etc.) |
-
-> Workflow descriptions are intentionally short — details live inside n8n.
-
----
 
 ## ▶️ How to use
 
